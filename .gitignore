@@ -1,0 +1,56 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environment
+.venv/
+env/
+ENV/
+venv/
+*.env
+
+# Environment variables
+.env
+.env.*
+
+# Flask instance folder
+instance/
+
+# Flask cache and debug files
+*.log
+*.pid
+
+# VS Code settings
+.vscode/
+
+# Pytest
+.cache/
+.pytest_cache/
+
+# Data files
+*.csv
+*.pkl
+*.h5
+*.db
+
+# Python packaging
+build/
+dist/
+*.egg-info/
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# Node modules (if using Node for frontend later)
+node_modules/
+
+
+
+# IDEs
+.idea/
+*.iml
+
+# Git files
+.git/
