@@ -27,6 +27,16 @@ class WaterUsage(db.Model):
     rainfall = db.Column(db.Float)
     temperature = db.Column(db.Float)
 
+# Add the WaterData model from waterUsage.py
+class WaterData(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    timestamp = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    flow_rate = db.Column(db.Float, nullable=False)  # in liters per minute
+    total_consumption = db.Column(db.Float, nullable=False)  # in liters
+    pipe_pressure = db.Column(db.Float, nullable=False)  # in PSI
+    leak_detected = db.Column(db.Boolean, default=False)
+    prediction = db.Column(db.Float)  # ML model prediction
+
 def create_app():
     """
     Create and configure the Flask application
@@ -39,8 +49,12 @@ def create_app():
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     db.init_app(app)
 
-    # Register blueprint
+    # Register blueprints
     app.register_blueprint(allocation_bp)
+    
+    # Import and register the water_usage blueprint
+    from water_usage.waterUsage import water_usage_bp
+    app.register_blueprint(water_usage_bp, url_prefix="/api")
 
     # Root endpoint
     @app.route('/')
@@ -55,11 +69,14 @@ def create_app():
                 "waterUsage": [
                     "/waterUsage/addinfo",
                     "/waterUsage/detail"
+                ],
+                "waterData": [
+                    "/api/water-data"
                 ]
             }
         })
 
-    # Add new water usage endpoints
+    # Add water usage endpoints
     @app.route('/waterUsage/addinfo', methods=['POST'])
     def add_water_usage_info():
         try:
@@ -142,4 +159,3 @@ def create_app():
 if __name__ == "__main__":
     app = create_app()
     app.run(debug=True, host="0.0.0.0", port=5000)
-

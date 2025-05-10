@@ -13,7 +13,7 @@ allocation_bp = Blueprint('allocation', __name__, url_prefix='/allocation')
 
 # Load the model
 try:
-    model_path ='allocation/water_optimization_model.pkl'
+    model_path ='C:\\coding\\WaterWallet\\Backend\\allocation\\water_optimization_model.pkl'
     pipeline = joblib.load(model_path)
     print("Water optimization model loaded successfully")
 except Exception as e:
@@ -32,6 +32,12 @@ test_input = {
     "day_of_week": 2,
     "valve_state": 1,
     "rainwater_harvested_L": 100,
+    # Required consumption columns that were missing
+    "kitchen_consumption_L": 0,
+    "bathroom_consumption_L": 0,
+    "garden_consumption_L": 0,
+    "other_consumption_L": 0,
+    "total_consumption_L": 0,
     # any other numeric features set to 0
     "water_pressure": 0,
     "population_density": 0
@@ -57,7 +63,11 @@ def prepare_input_data(data=None):
         data = test_input.copy()
     
     # Ensure we have all required features
-    input_data = data.copy()
+    input_data = test_input.copy()  # Start with all default features
+    
+    # Update with provided data
+    if data:
+        input_data.update(data)
     
     # Add current timestamp-derived features if not provided
     if 'hour' not in input_data:
@@ -67,6 +77,17 @@ def prepare_input_data(data=None):
     if 'day_of_week' not in input_data:
         now = datetime.now()
         input_data['day_of_week'] = now.weekday()
+    
+    # Ensure all required columns for the model are present
+    required_columns = [
+        "kitchen_consumption_L", "bathroom_consumption_L", 
+        "garden_consumption_L", "other_consumption_L", 
+        "total_consumption_L"
+    ]
+    
+    for col in required_columns:
+        if col not in input_data:
+            input_data[col] = 0
     
     # Create DataFrame with a single row
     return pd.DataFrame([input_data])
@@ -85,7 +106,7 @@ def predict_consumption(input_df):
         return predicted_total_L
     except Exception as e:
         print(f"Prediction error: {e}")
-        return None
+        return {"error": f"Prediction error: {str(e)}"}, 500
 
 
 def allocate_water(total_L):
@@ -110,20 +131,20 @@ def predict_water_consumption():
         # Make prediction
         predicted_total_L = predict_consumption(input_df)
         if isinstance(predicted_total_L, tuple):  # Error case
-            return predicted_total_L
+            return jsonify(predicted_total_L[0]), predicted_total_L[1]
         
         # Allocate water usage into zones
         allocations = allocate_water(predicted_total_L)
         
-        # Calculate rainwater amount
-        rainwater_amount = RAINWATER_HARVESTED_L if test_input.get("rainwater_harvested", False) else 0.0
+        # Calculate rainwater amount - correctly access the value from input_df DataFrame
+        rainwater_amount = RAINWATER_HARVESTED_L if input_df["rainwater_harvested_L"].iloc[0] > 0 else 0.0
         
         # Prepare response
         response_data = {
             "predicted_total_L": round(predicted_total_L, 2),
             "allocations": allocations,
             "rainwater_harvested_L": rainwater_amount,
-            "input_data": {k: v for k, v in test_input.items()}
+            "input_data": {k: v for k, v in test_input.items() if k not in ["kitchen_consumption_L", "bathroom_consumption_L", "garden_consumption_L", "other_consumption_L", "total_consumption_L"]}
         }
         
         return jsonify(response_data)
@@ -149,20 +170,20 @@ def predict_custom():
         # Make prediction
         predicted_total_L = predict_consumption(input_df)
         if isinstance(predicted_total_L, tuple):  # Error case
-            return predicted_total_L
+            return jsonify(predicted_total_L[0]), predicted_total_L[1]
         
         # Allocate water usage into zones
         allocations = allocate_water(predicted_total_L)
         
         # Calculate rainwater amount based on whether harvesting is active
-        rainwater_amount = RAINWATER_HARVESTED_L if input_data.get("rainwater_harvested", False) else 0.0
+        rainwater_amount = RAINWATER_HARVESTED_L if input_df["rainwater_harvested_L"].iloc[0] > 0 else 0.0
         
         # Prepare response
         response_data = {
             "predicted_total_L": round(predicted_total_L, 2),
             "allocations": allocations,
             "rainwater_harvested_L": rainwater_amount,
-            "input_data": {k: v for k, v in input_data.items()}
+            "input_data": {k: v for k, v in input_data.items() if k not in ["kitchen_consumption_L", "bathroom_consumption_L", "garden_consumption_L", "other_consumption_L", "total_consumption_L"]}
         }
         
         return jsonify(response_data)
