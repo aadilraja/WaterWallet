@@ -5,7 +5,7 @@ Follow these steps **in order** to get the project up and running:
 ### 1. Clone the Repo
 
 ```bash
-git clone https://github.com/repo-address  
+git clone https://github.com/aadilraja/WaterWallet.git
 ```
 
 
