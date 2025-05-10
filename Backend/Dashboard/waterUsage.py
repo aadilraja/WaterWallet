@@ -18,7 +18,11 @@ app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL', 'sqlite:///wat
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
-# Define Water data model
+# ------------------------
+# Models
+# ------------------------
+
+# Existing WaterData model
 class WaterData(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     timestamp = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
@@ -28,37 +32,50 @@ class WaterData(db.Model):
     leak_detected = db.Column(db.Boolean, default=False)
     prediction = db.Column(db.Float)  # ML model prediction
 
-# Load ML model (you'll need to train and save your model first)
+# New WaterUsage model
+class WaterUsage(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    timestamp = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    kitchen = db.Column(db.Float, nullable=False)       # in liters
+    bathroom = db.Column(db.Float, nullable=False)      # in liters
+    outdoor = db.Column(db.Float, nullable=False)       # in liters
+    weather = db.Column(db.String(50))                  # sunny, rainy, etc.
+    rainfall = db.Column(db.Float)                      # optional, in mm
+    temperature = db.Column(db.Float)                   # optional, in Celsius
+
+# ------------------------
+# Load ML model
+# ------------------------
 try:
     model = joblib.load('model.pkl')
 except:
     model = None
 
+# ------------------------
+# Routes
+# ------------------------
+
+# Existing route to receive general water data
 @app.route('/api/water-data', methods=['POST'])
 def receive_water_data():
     try:
         data = request.get_json()
-        
-        # Extract water data
         flow_rate = data.get('flow_rate')
         total_consumption = data.get('total_consumption')
         pipe_pressure = data.get('pipe_pressure')
         leak_detected = data.get('leak_detected', False)
         
-        # Validate required fields
         if None in (flow_rate, total_consumption, pipe_pressure):
             return jsonify({
                 'status': 'error',
                 'message': 'Missing required fields: flow_rate, total_consumption, pipe_pressure'
             }), 400
         
-        # Make prediction if model is available
         prediction = None
         if model is not None:
             features = np.array([[flow_rate, pipe_pressure, total_consumption]])
             prediction = model.predict(features)[0]
         
-        # Save to database
         water_data = WaterData(
             flow_rate=flow_rate,
             total_consumption=total_consumption,
@@ -81,21 +98,17 @@ def receive_water_data():
             'message': str(e)
         }), 500
 
+# Existing route to get water data
 @app.route('/api/water-data', methods=['GET'])
 def get_water_data():
     try:
-        # Get query parameters for filtering
         limit = request.args.get('limit', default=100, type=int)
         leak_only = request.args.get('leak_only', default=False, type=bool)
         
-        # Base query
         query = WaterData.query
-        
-        # Apply leak filter if requested
         if leak_only:
             query = query.filter(WaterData.leak_detected == True)
         
-        # Get records ordered by timestamp
         data = query.order_by(WaterData.timestamp.desc()).limit(limit).all()
         
         return jsonify({
@@ -116,7 +129,78 @@ def get_water_data():
             'message': str(e)
         }), 500
 
+# ------------------------
+# New WaterUsage routes
+# ------------------------
+
+@app.route('/waterUsage/addinfo', methods=['POST'])
+def add_water_usage_info():
+    try:
+        data = request.get_json()
+
+        kitchen = data.get('kitchen')
+        bathroom = data.get('bathroom')
+        outdoor = data.get('outdoor')
+        weather = data.get('weather', 'unknown')
+        rainfall = data.get('rainfall', None)
+        temperature = data.get('temperature', None)
+
+        if None in (kitchen, bathroom, outdoor):
+            return jsonify({
+                'status': 'error',
+                'message': 'Missing required fields: kitchen, bathroom, outdoor'
+            }), 400
+
+        usage = WaterUsage(
+            kitchen=kitchen,
+            bathroom=bathroom,
+            outdoor=outdoor,
+            weather=weather,
+            rainfall=rainfall,
+            temperature=temperature
+        )
+        db.session.add(usage)
+        db.session.commit()
+
+        return jsonify({
+            'status': 'success',
+            'message': 'Water usage data added successfully.'
+        }), 200
+
+    except Exception as e:
+        return jsonify({
+            'status': 'error',
+            'message': str(e)
+        }), 500
+
+@app.route('/waterUsage/detail', methods=['GET'])
+def get_water_usage_detail():
+    try:
+        data = WaterUsage.query.order_by(WaterUsage.timestamp.desc()).all()
+
+        return jsonify({
+            'status': 'success',
+            'data': [{
+                'timestamp': entry.timestamp.isoformat(),
+                'kitchen': entry.kitchen,
+                'bathroom': entry.bathroom,
+                'outdoor': entry.outdoor,
+                'weather': entry.weather,
+                'rainfall': entry.rainfall,
+                'temperature': entry.temperature
+            } for entry in data]
+        }), 200
+
+    except Exception as e:
+        return jsonify({
+            'status': 'error',
+            'message': str(e)
+        }), 500
+
+# ------------------------
+# Run App
+# ------------------------
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
-    app.run(debug=True, host='0.0.0.0', port=5000) 
+    app.run(debug=True, host='0.0.0.0', port=5000)
