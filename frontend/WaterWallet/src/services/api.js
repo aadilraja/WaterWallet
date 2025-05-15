@@ -1,6 +1,9 @@
 import axios from 'axios';
+import { IP_ADDRESS } from '@env';
 
-const API_BASE = 'http://localhost:5000'; // Replace with your Flask server URL
+//const API_BASE = `http://${IP_ADDRESS}`;
+
+const API_BASE="http://localhost:5000"
 
 export const fetchAllocation = async () => {
   try {
