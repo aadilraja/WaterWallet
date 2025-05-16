@@ -1,0 +1,223 @@
+/* Dashboard.css - converted from React Native StyleSheet */
+
+.safeArea {
+  display: flex;
+  flex: 1;
+  background-color: #F7FAFC;
+}
+
+.header {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  background-color: #ffffff;
+  padding: 16px 20px;
+  border-bottom: 1px solid #EDF2F7;
+  /* Shadow / Elevation */
+  box-shadow: 0px 2px 3px rgba(0, 0, 0, 0.05);
+}
+
+.headerTitle {
+  font-size: 22px;
+  font-weight: 700;
+  color: #2D3748;
+}
+
+.refreshButton {
+  padding: 8px;
+}
+
+.scrollContainer {
+  display: flex;
+  flex: 1;
+}
+
+.contentContainer {
+  padding: 16px;
+  padding-bottom: 40px;
+}
+
+.centered {
+  display: flex;
+  flex: 1;
+  justify-content: center;
+  align-items: center;
+  background-color: #ffffff;
+}
+
+.loadingText {
+  margin-top: 16px;
+  font-size: 16px;
+  color: #718096;
+  font-weight: 500;
+}
+
+.errorCard {
+  background-color: #FFF5F5;
+  border-radius: 16px;
+  padding: 24px;
+  text-align: center;
+  margin: 16px 0;
+  border: 1px solid #FED7D7;
+}
+
+.errorText {
+  font-size: 16px;
+  color: #C53030;
+  text-align: center;
+  margin: 16px 0;
+}
+
+.retryButton {
+  background-color: #E53E3E;
+  padding: 10px 20px;
+  border-radius: 8px;
+  margin-top: 8px;
+  color: #ffffff;
+  font-weight: 600;
+  font-size: 16px;
+  text-align: center;
+  cursor: pointer;
+}
+
+.metricsContainer {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.metricCard {
+  flex: 1;
+  background-color: #ffffff;
+  border-radius: 12px;
+  padding: 16px;
+  align-items: center;
+  margin: 0 4px;
+  box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.metricValue {
+  font-size: 20px;
+  font-weight: 700;
+  color: #2D3748;
+}
+
+.metricLabel {
+  font-size: 12px;
+  color: #718096;
+  margin-top: 4px;
+}
+
+.savingsCard {
+  background-color: #ffffff;
+  border-radius: 16px;
+  padding: 16px;
+  margin-bottom: 16px;
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.savingsHeader {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.savingsTitle {
+  font-size: 16px;
+  font-weight: 600;
+  color: #2D3748;
+  margin-left: 8px;
+}
+
+.savingsContent {
+  margin-left: 30px;
+}
+
+.savingsValue {
+  font-size: 18px;
+  font-weight: 700;
+  color: #2D3748;
+}
+
+.savingsTip {
+  font-size: 13px;
+  color: #718096;
+  margin-top: 4px;
+}
+
+.chartCard {
+  margin-bottom: 16px;
+}
+
+.usageBreakdownCard {
+  background-color: #ffffff;
+  border-radius: 16px;
+  padding: 16px;
+  margin-bottom: 16px;
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.usageBreakdownTitle {
+  font-size: 18px;
+  font-weight: 700;
+  color: #2D3748;
+  margin-bottom: 16px;
+}
+
+.categoryRow {
+  margin-bottom: 16px;
+}
+
+.categoryInfo {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.categoryName {
+  font-size: 14px;
+  font-weight: 600;
+  color: #4A5568;
+}
+
+.categoryValues {
+  font-size: 14px;
+  color: #718096;
+}
+
+.progressContainer {
+  height: 8px;
+  background-color: #EDF2F7;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progressBar {
+  height: 100%;
+  border-radius: 4px;
+}
+
+.tipCard {
+  background-color: #EBF8FF;
+  border-radius: 16px;
+  padding: 16px;
+  border-left: 4px solid #2E86C1;
+}
+
+.tipTitle {
+  font-size: 16px;
+  font-weight: 600;
+  color: #2C5282;
+  margin-bottom: 8px;
+}
+
+.tipText {
+  font-size: 14px;
+  color: #2A4365;
+  line-height: 20px;
+}

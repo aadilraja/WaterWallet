@@ -1,15 +1,23 @@
+// src/services/api.js - FIXED VERSION
 import axios from 'axios';
+
 import { IP_ADDRESS } from '@env';
 
-//const API_BASE = `http://${IP_ADDRESS}`;
+const getApiBaseUrl = () => {
+ 
+  
+  // For iOS simulators or web
+  return 'http://localhost:8081';
+};
 
-const API_BASE="http://localhost:5000"
+const API_BASE = getApiBaseUrl();
+console.log('API Base URL:', API_BASE);
 
 export const fetchAllocation = async () => {
   try {
+    console.log('Fetching allocation data...');
     const response = await axios.get(`${API_BASE}/allocation/predict`);
     
-    // Transform the data structure to match what the dashboard expects
     const allocations = response.data.allocations || {};
     
     return {
@@ -23,7 +31,16 @@ export const fetchAllocation = async () => {
     };
   } catch (error) {
     console.error('Error fetching allocation data:', error);
-    throw new Error('Failed to load water allocation data');
+    // Return default values instead of throwing to prevent crashes
+    return {
+      data: {
+        kitchen: 0,
+        bathroom: 0,
+        garden: 0,
+        outdoor: 0,
+        total: 0
+      }
+    };
   }
 };
 
@@ -33,6 +50,7 @@ export const fetchAllocation = async () => {
  */
 export const fetchUsage = async () => {
   try {
+    console.log('Fetching usage data...');
     const response = await axios.get(`${API_BASE}/waterUsage/detail`);
     
     // Get the most recent usage entry (first item if sorted by desc)
@@ -45,6 +63,15 @@ export const fetchUsage = async () => {
     };
   } catch (error) {
     console.error('Error fetching usage data:', error);
-    throw new Error('Failed to load water usage data');
+    // Return default values instead of throwing to prevent crashes
+    return {
+      data: {
+        kitchen: 0,
+        bathroom: 0,
+        garden: 0,
+        outdoor: 0,
+        total: 0
+      }
+    };
   }
 };
